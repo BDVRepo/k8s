@@ -11,9 +11,9 @@ docker push bdv21/payment-server-test1:0.0.1
 #### Сборка с Kaniko
 
 ```sh
-# export REGISTRY_URL="ghp_xxxxxxxxxxxxxxxxxxxx"
-# export REGISTRY_USERNAME="ghp_xxxxxxxxxxxxxxxxxxxx"
-# export REGISTRY_PASSWORD="ghp_xxxxxxxxxxxxxxxxxxxx"
+export REGISTRY_URL=""
+export REGISTRY_USERNAME=""
+export REGISTRY_PASSWORD=""
 
 mkdir  /tmp/.docker
 sudo chmod 777 /tmp/.docker
