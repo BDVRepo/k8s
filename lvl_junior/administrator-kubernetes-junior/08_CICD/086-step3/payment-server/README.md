@@ -12,8 +12,8 @@ docker push bdv21/payment-server-test1:0.0.1
 
 ```sh
 export REGISTRY_URL="https://index.docker.io/v1/"
-export REGISTRY_USERNAME="bdv21"
-export REGISTRY_PASSWORD="dckr_pat_DJUByBBKuPfTeJt6wfbFomPXj_A"
+export REGISTRY_USERNAME="[REDACTED]"
+export REGISTRY_PASSWORD="[REDACTED]"
 
 mkdir  /tmp/.docker
 sudo chmod 777 /tmp/.docker
