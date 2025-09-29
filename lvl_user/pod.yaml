@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: simple-web
+  namespace: web-app-dev
+spec:
+  containers:
+    - name: web
+      image: nginx ## укажите здесь свой образ из предыдущих уроков в формате 
+                                 ## image: <имя_пользователя>/<репозиторий>/<тег>
+      imagePullPolicy: Always
+      ports:
+        - name: web
+          containerPort: 8070
+          protocol: TCP

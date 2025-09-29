@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: curl-pod
+  labels:
+    app: curl
+spec:
+  containers:
+  - name: curl-container
+    image: curlimages/curl:latest
+    command: ["sleep", "3600"] # Нужно, чтобы был постоянный основной процесс. Под работает и ждет команд

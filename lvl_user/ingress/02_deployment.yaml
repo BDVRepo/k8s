@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: goapp-deployment
+  namespace: demo-ingress
+  labels:
+    app: goapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: goapp
+  template:
+    metadata:
+      labels:
+        app: goapp
+    spec:
+      containers:
+      - name: web
+        image: nginx
+        ports:
+        - containerPort: 8070

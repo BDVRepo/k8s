@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: rs-test
+---
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: goapp-replicaset
+  namespace: rs-test
+  labels:
+    app: goapp
+spec:
+  replicas: 2  # Количество реплик (Подов)
+  selector:
+    matchLabels:  # Селектор для привязки к соответствующим Подам
+      app: goapp
+  template:  # Шаблон для создания Подов
+    metadata:
+      labels:  # Лейблы, по которым ReplicaSet будет находить и создавать Поды
+        app: goapp
+    spec:  # Спека для описания Подов
+      containers:
+      - name: web
+        image: nginx  # Образ контейнера, используйте свой Образ
+        ports:
+        - containerPort: 8070  # Порт внутри контейнера

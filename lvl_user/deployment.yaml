@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: goapp-deployment
+  namespace: web-app-stage
+  labels:
+    app: goapp
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: goapp
+  template:
+    metadata:
+      labels:
+        app: goapp
+    spec:
+      containers:
+      - name: web
+        image: nginx ## Используйте свой Образ
+        ports:
+        - containerPort: 8070

@@ -1,0 +1,121 @@
+apiVersion: v1
+items:
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"v1","kind":"Pod","metadata":{"annotations":{},"name":"simple-web","namespace":"web-app-dev"},"spec":{"containers":[{"image":"nginx","imagePullPolicy":"Always","name":"web","ports":[{"containerPort":8070,"name":"web","protocol":"TCP"}]}]}}
+    creationTimestamp: "2025-08-27T12:29:51Z"
+    generation: 1
+    name: simple-web
+    namespace: web-app-dev
+    resourceVersion: "6013"
+    uid: fe2996f7-c318-48c9-a126-70f41f2635f0
+  spec:
+    containers:
+    - image: nginx
+      imagePullPolicy: Always
+      name: web
+      ports:
+      - containerPort: 8070
+        name: web
+        protocol: TCP
+      resources: {}
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-7ghws
+        readOnly: true
+    dnsPolicy: ClusterFirst
+    enableServiceLinks: true
+    nodeName: minikube
+    preemptionPolicy: PreemptLowerPriority
+    priority: 0
+    restartPolicy: Always
+    schedulerName: default-scheduler
+    securityContext: {}
+    serviceAccount: default
+    serviceAccountName: default
+    terminationGracePeriodSeconds: 30
+    tolerations:
+    - effect: NoExecute
+      key: node.kubernetes.io/not-ready
+      operator: Exists
+      tolerationSeconds: 300
+    - effect: NoExecute
+      key: node.kubernetes.io/unreachable
+      operator: Exists
+      tolerationSeconds: 300
+    volumes:
+    - name: kube-api-access-7ghws
+      projected:
+        defaultMode: 420
+        sources:
+        - serviceAccountToken:
+            expirationSeconds: 3607
+            path: token
+        - configMap:
+            items:
+            - key: ca.crt
+              path: ca.crt
+            name: kube-root-ca.crt
+        - downwardAPI:
+            items:
+            - fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+              path: namespace
+  status:
+    conditions:
+    - lastProbeTime: null
+      lastTransitionTime: "2025-08-27T12:29:54Z"
+      status: "True"
+      type: PodReadyToStartContainers
+    - lastProbeTime: null
+      lastTransitionTime: "2025-08-27T12:29:51Z"
+      status: "True"
+      type: Initialized
+    - lastProbeTime: null
+      lastTransitionTime: "2025-08-27T12:29:54Z"
+      status: "True"
+      type: Ready
+    - lastProbeTime: null
+      lastTransitionTime: "2025-08-27T12:29:54Z"
+      status: "True"
+      type: ContainersReady
+    - lastProbeTime: null
+      lastTransitionTime: "2025-08-27T12:29:51Z"
+      status: "True"
+      type: PodScheduled
+    containerStatuses:
+    - containerID: docker://c4af485183067bf7a55e36e632071c6a92cf24064b78544189032747ba4bfc4d
+      image: nginx:latest
+      imageID: docker-pullable://nginx@sha256:33e0bbc7ca9ecf108140af6288c7c9d1ecc77548cbfd3952fd8466a75edefe57
+      lastState: {}
+      name: web
+      ready: true
+      resources: {}
+      restartCount: 0
+      started: true
+      state:
+        running:
+          startedAt: "2025-08-27T12:29:53Z"
+      volumeMounts:
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-7ghws
+        readOnly: true
+        recursiveReadOnly: Disabled
+    hostIP: 192.168.49.2
+    hostIPs:
+    - ip: 192.168.49.2
+    phase: Running
+    podIP: 10.244.0.9
+    podIPs:
+    - ip: 10.244.0.9
+    qosClass: BestEffort
+    startTime: "2025-08-27T12:29:51Z"
+kind: List
+metadata:
+  resourceVersion: ""

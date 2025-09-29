@@ -1,0 +1,13 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: pi-job
+spec:
+  template:
+    spec:
+      containers:
+      - name: pi
+        image: python:3.9
+        command: ["python", "-c", "from math import pi; print(f'{pi:.20f}')"]
+      restartPolicy: Never
+  backoffLimit: 4

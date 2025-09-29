@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: demo-clusterip
+  name: goweb-svc
+spec:
+  selector:
+    app: goapp
+  ports:
+    - protocol: TCP
+      port: 80         ## порт, который слушает Сервис
+      targetPort: 8070 ## порт Пода, на который Сервис направляет запросы
