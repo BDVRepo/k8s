@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: chaos-mesh
+  name: dashboard-lb-svc
+  annotations:
+    metallb.universe.tf/loadBalancerIPs: 192.168.10.123
+spec:
+  type: LoadBalancer
+  selector:
+    app.kubernetes.io/component: "chaos-dashboard"
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 2333

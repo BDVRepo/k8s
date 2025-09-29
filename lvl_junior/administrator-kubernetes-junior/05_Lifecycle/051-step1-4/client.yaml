@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: go-http-client
+  namespace: app-dev
+spec:
+  strategy: 
+    type: Recreate
+  replicas: 1
+  selector:
+    matchLabels:
+      app: go-http-client
+  template:
+    metadata:
+      labels:
+        app: go-http-client
+    spec:
+      containers:
+      - name: client
+        image: bdv21/http-client:0.0.1
+        command: ["./app"]
+        args: ["-url", "http://server-svc:8080/cakes", "-interval", "3"]

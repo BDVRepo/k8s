@@ -1,0 +1,48 @@
+workflow: 
+  rules: 
+    - if: $CI_COMMIT_BRANCH =~ /^feature\/.*$/
+      variables: 
+        IMAGE_TAG: "feat"
+    - if: $CI_COMMIT_BRANCH =~ /^hotfix\/.*$/    
+      variables: 
+        IMAGE_TAG: "hf"
+    - if: $CI_COMMIT_BRANCH == "develop"
+      variables: 
+        IMAGE_TAG: "dev"
+    - if: $CI_COMMIT_BRANCH =~ /^release\/(\d+\.\d+\.\d+)$/
+      variables: 
+        IMAGE_TAG: "stage"
+    - if: $CI_COMMIT_TAG =~ /^(\d+\.\d+\.\d+)$/
+      variables: 
+        IMAGE_TAG: $CI_COMMIT_TAG
+
+stages:
+  - build-and-push
+  - test
+  - deploy
+  - deploy-prod
+
+build-and-push:
+  stage: build-and-push
+  script: 
+    - echo "This is a build-and-push stub"
+
+unit-tests:
+  stage: test
+  script: 
+    - echo "This is a unit-tests stub"
+
+lint:
+  stage: test
+  script: 
+    - echo "This is a lint stub"
+
+deploy:
+  stage: deploy
+  script: 
+    - echo "This is a deploy stub"
+
+deploy-prod:
+  stage: deploy-prod
+  script: 
+    - echo "This is a deploy-prod stub"    

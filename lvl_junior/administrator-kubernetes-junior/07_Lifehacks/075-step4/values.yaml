@@ -1,0 +1,19 @@
+
+ingress:
+  enabled: true
+  className: "nginx"
+  hosts:
+    - host: console.akj.ru
+      paths: ["/"]
+
+rbac:
+  enabled: true
+
+console:
+  dex:
+    host: https://dex.example.org
+  baseUrl: http://console.akj.ru
+  impersonateOpenShift: false
+  oidc:
+    enabled: false
+

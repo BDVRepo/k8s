@@ -1,0 +1,26 @@
+gitlabUrl: https://gitlab.example.com/
+runnerToken: "ВАШ ТОКЕН"
+
+certsSecretName: gitlab-tls
+
+rbac:
+  create: true
+  rules:
+   - apiGroups: ["*"]
+     resources: ["*"]
+     verbs: ["*"]
+  clusterWideAccess: true
+
+serviceAccount:
+  create: true
+  name: "runner"
+
+runners:
+  config: |
+    [[runners]]
+
+      [runners.kubernetes]
+        namespace = "{{.Release.Namespace}}"
+        image = "alpine"
+        service_account = "runner"
+

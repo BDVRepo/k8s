@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: documentation
+  namespace: playground
+spec:
+  strategy: 
+    type: Recreate
+  replicas: 1
+  selector:
+    matchLabels:
+      app: documentation
+  template:
+    metadata:
+      labels:
+        app: documentation
+    spec:
+      containers:
+      - name: server
+        image: bdv21/frontend:0.0.6
+        ports:
+        - containerPort: 3000
+          name: web
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: playground
+  name: documentation-svc
+spec:
+  selector:
+    app: documentation
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 3000
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: documentation
+  namespace: playground
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: docs.akj.ru
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: documentation-svc
+            port:
+              number: 8080      

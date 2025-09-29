@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: healthchecks
+  namespace: probes-test
+spec:
+  strategy: 
+    type: Recreate
+  replicas: 1
+  selector:
+    matchLabels:
+      app: healthchecks
+  template:
+    metadata:
+      labels:
+        app: healthchecks
+    spec:
+      containers:
+      - name: healthchecks
+        image: bdv21/healthchecks:1.0.0  
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+          name: web
+        - containerPort: 8086
+          name: healthchecks        
+        command: ["./app"]
+        args: ["-url", "http://http-server:8080/cakes", "-wait", "600"]            
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8086
+          initialDelaySeconds: 3
+          periodSeconds: 3     
+        livenessProbe:
+          httpGet:
+            path: /live
+            port: 8086
+          initialDelaySeconds: 3
+          periodSeconds: 3                  
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: probes-test
+  name: healthchecks-svc
+spec:
+  selector:
+    app: healthchecks
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080

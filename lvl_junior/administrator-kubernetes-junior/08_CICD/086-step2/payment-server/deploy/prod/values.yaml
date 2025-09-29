@@ -1,0 +1,22 @@
+replicaCount: 2
+
+image:
+  pullPolicy: Always
+
+service:
+  type: ClusterIP
+  port: 8080
+
+ingress:
+  enabled: true
+  className: "nginx"
+  hosts:
+    - host: payment-server-prod.akj.ru
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+
+resources: {}
+
+envs:
+  TEST_ENV: some-value

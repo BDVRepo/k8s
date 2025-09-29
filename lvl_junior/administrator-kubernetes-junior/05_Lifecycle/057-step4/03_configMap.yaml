@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: some-cm
+  namespace: read-secret
+data:
+  some2.json: |
+    {
+        "id": "15926"
+    }

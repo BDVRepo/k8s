@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: read-env
+  name: go-env-reader
+spec:
+  strategy: 
+    type: RollingUpdate
+  replicas: 1
+  selector:
+    matchLabels:
+      app: go-env-reader
+  template:
+    metadata:
+      labels:
+        app: go-env-reader
+    spec:
+      containers:
+      - name: reader
+        image: bdv21/env-reader:0.0.1
+        env:
+          - name: DB_NAME
+            value: postgres
+          - name: DB_URL
+            value: "127.0.01"
+          - name: DB_PORT
+            value: "5432"       
+          # - name: DB_NAME
+          #   valueFrom:
+          #     secretKeyRef: 
+          #       name: some-secret
+          #       key: DB_NAME            
+        envFrom:
+          - secretRef:
+              name: some-secret        

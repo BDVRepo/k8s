@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: http-server
+  namespace: home-dev
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: example
+  template: ## Pod
+    metadata:
+      labels:
+        app: example
+    spec:
+      containers:
+      - name: server
+        image: bdv21/http-server:0.0.2
+        ports:
+        - containerPort: 8080
+          name: web

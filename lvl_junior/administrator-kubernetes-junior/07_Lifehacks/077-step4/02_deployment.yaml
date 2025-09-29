@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: go-http-server
+  namespace: debug-4
+spec:
+  strategy: 
+    type: Recreate
+  replicas: 1
+  selector:
+    matchLabels:
+      app: go-http-server
+  template:
+    metadata:
+      labels:
+        app: go-http-server
+    spec:
+      containers:
+      - name: server
+        image: bdv21/http-server:0.0.2
+        ports:
+        - containerPort: 8080
+          name: web
+        readinessProbe:
+          exec:
+            command:
+            - cat
+            - /app/unexisting-file.txt

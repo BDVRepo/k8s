@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: example-quota
+  namespace: debug-6
+spec:
+  hard:
+    requests.cpu: "50m"
+    requests.memory: "128Mi"
+    limits.cpu: "250m"
+    limits.memory: "256Mi"

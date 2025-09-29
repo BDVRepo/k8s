@@ -1,0 +1,79 @@
+workflow: 
+  rules: 
+    - if: $CI_COMMIT_BRANCH =~ /^feature\/.*$/
+      variables: 
+        IMAGE_TAG: "feat"
+    - if: $CI_COMMIT_BRANCH =~ /^hotfix\/.*$/    
+      variables: 
+        IMAGE_TAG: "hf"
+    - if: $CI_COMMIT_BRANCH == "develop"
+      variables: 
+        IMAGE_TAG: "dev"
+    - if: $CI_COMMIT_BRANCH =~ /^release\/(\d+\.\d+\.\d+)$/
+      variables: 
+        IMAGE_TAG: "stage"
+    - if: $CI_COMMIT_TAG =~ /^(\d+\.\d+\.\d+)$/
+      variables: 
+        IMAGE_TAG: $CI_COMMIT_TAG
+
+stages:
+  - build-and-push
+  - test
+  - deploy
+  - deploy-prod
+
+build-and-push:
+  stage: build-and-push
+  extends: .kaniko
+  variables: 
+    KANIKO_TARGET: runtime
+
+unit-tests:
+  stage: test
+  image: golang:1.22
+  script: 
+    - go test -v -coverpkg=./... -coverprofile=profile.cov ./...
+    - go tool cover -func profile.cov
+
+lint:
+  stage: test
+  rules: 
+    - if: $CI_COMMIT_TAG =~ /^(\d+\.\d+\.\d+)$/
+      when: never
+    - when: on_success
+  script: 
+    - echo "This is a lint stub"
+
+.kaniko: 
+  image: gcr.io/kaniko-project/executor:v1.23.2-debug
+  script: 
+    - mkdir -p /kaniko/.docker
+    - echo "{\"auths\":{\"$REGISTRY_URL\":{\"auth\":\"$(echo -n "${REGISTRY_USERNAME}:${REGISTRY_PASSWORD}" | base64 | tr -d '\n')\"}}}" > /kaniko/.docker/config.json
+    - echo "/kaniko/executor 
+      --destination ${REGISTRY_USERNAME}/${CI_PROJECT_NAME}:${IMAGE_TAG}
+      --context "."
+      --target $KANIKO_TARGET
+      "
+    - /kaniko/executor 
+      --destination ${REGISTRY_USERNAME}/${CI_PROJECT_NAME}:${IMAGE_TAG}
+      --context "." 
+      --target $KANIKO_TARGET
+
+.deploy-template:
+  script: 
+    - echo "This is a deploy-template stub"
+
+deploy:
+  stage: deploy
+  extends: .deploy-template
+  rules:
+    - if: $CI_COMMIT_BRANCH == "develop"
+    - if: $CI_COMMIT_BRANCH =~ /^release\/(\d+\.\d+\.\d+)$/
+    - if: $CI_COMMIT_TAG =~ /^(\d+\.\d+\.\d+)$/
+
+deploy-prod:
+  stage: deploy-prod
+  extends: .deploy-template
+  rules: 
+    - when: manual
+      if: $CI_COMMIT_TAG =~ /^(\d+\.\d+\.\d+)$/

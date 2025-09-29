@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: debug-1-ing
+  namespace: debug-1
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: debug-1.akj.ru
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: backend-svc
+            port:
+              number: 8000
+         
