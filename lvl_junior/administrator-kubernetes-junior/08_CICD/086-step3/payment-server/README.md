@@ -11,7 +11,7 @@ docker push bdv21/payment-server-test1:0.0.1
 #### Сборка с Kaniko
 
 ```sh
-export REGISTRY_URL="https://index.docker.io/v1/"
+export REGISTRY_URL="[REDACTED]"
 export REGISTRY_USERNAME="[REDACTED]"
 export REGISTRY_PASSWORD="[REDACTED]"
 
