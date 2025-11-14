@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+package orders.v1;
+
+option go_package = "github.com/bdv/gprs/internal/gen/orderspb;orderspb";
+
+message Money {
+  string currency = 1;
+  double amount = 2;
+}
+
+message CreateOrderRequest {
+  string user_id = 1;
+  string product_id = 2;
+  Money price = 3;
+}
+
+message CreateOrderResponse {
+  string order_id = 1;
+  string payment_id = 2;
+  string status = 3;
+}
+
+message GetOrderRequest {
+  string order_id = 1;
+}
+
+message OrderSummary {
+  string order_id = 1;
+  string user_id = 2;
+  string product_id = 3;
+  string status = 4;
+  string payment_status = 5;
+  string payment_id = 6;
+  Money price = 7;
+}
+
+message GetOrderResponse {
+  OrderSummary order = 1;
+}
+
+service OrdersService {
+  rpc CreateOrder(CreateOrderRequest) returns (CreateOrderResponse);
+  rpc GetOrder(GetOrderRequest) returns (GetOrderResponse);
+}

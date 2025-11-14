@@ -1,0 +1,19 @@
+services:
+  payments:
+    build:
+      context: .
+      dockerfile: build/payments/Dockerfile
+    ports:
+      - "50052:50052"
+
+  orders:
+    build:
+      context: .
+      dockerfile: build/orders/Dockerfile
+    environment:
+      PAYMENTS_GRPC_ADDR: "payments:50052"
+      ORDERS_GRPC_PORT: ":50051"
+    depends_on:
+      - payments
+    ports:
+      - "50051:50051"

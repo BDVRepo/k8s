@@ -1,0 +1,7 @@
+.git
+bin
+.vscode
+proto
+Makefile
+docs
+README.md

@@ -1,0 +1,35 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Payments Service",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/payments",
+            "env": {
+                "PAYMENTS_GRPC_PORT": ":50052"
+            }
+        },
+        {
+            "name": "Orders Service",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/orders",
+            "env": {
+                "ORDERS_GRPC_PORT": ":50051",
+                "PAYMENTS_GRPC_ADDR": "localhost:50052"
+            }
+        }
+    ],
+    "compounds": [
+        {
+            "name": "Payments + Orders",
+            "configurations": [
+                "Payments Service",
+                "Orders Service"
+            ]
+        }
+    ]
+}

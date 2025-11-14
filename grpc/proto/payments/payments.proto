@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package payments.v1;
+
+option go_package = "github.com/bdv/gprs/internal/gen/paymentspb;paymentspb";
+
+message AuthorizePaymentRequest {
+  string order_id = 1;
+  double amount = 2;
+  string currency = 3;
+}
+
+message AuthorizePaymentResponse {
+  string payment_id = 1;
+  string status = 2;
+  string message = 3;
+}
+
+message GetPaymentStatusRequest {
+  string payment_id = 1;
+}
+
+message GetPaymentStatusResponse {
+  string payment_id = 1;
+  string status = 2;
+  string message = 3;
+}
+
+service PaymentsService {
+  rpc AuthorizePayment(AuthorizePaymentRequest) returns (AuthorizePaymentResponse);
+  rpc GetPaymentStatus(GetPaymentStatusRequest) returns (GetPaymentStatusResponse);
+}
