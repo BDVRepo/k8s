@@ -10,10 +10,11 @@ import (
 
 	orderspb "github.com/bdv/gprs/internal/gen/orderspb"
 	paymentspb "github.com/bdv/gprs/internal/gen/paymentspb"
-	grpcclient "github.com/bdv/gprs/internal/infrastructure/grpc"
 	ordersrepository "github.com/bdv/gprs/internal/methods/handlers/orders/adapter"
 	ordersgrpc "github.com/bdv/gprs/internal/methods/handlers/orders/grpc"
 	ordersservice "github.com/bdv/gprs/internal/methods/handlers/orders/usecase"
+	grpcclient "github.com/bdv/gprs/internal/infrastructure/grpc"
+	kafka "github.com/bdv/gprs/internal/infrastructure/kafka"
 	"github.com/bdv/gprs/pkg/config"
 	"github.com/bdv/gprs/pkg/id"
 	"google.golang.org/grpc"
@@ -38,7 +39,12 @@ func main() {
 	paymentClient := grpcclient.NewGRPCPaymentClient(paymentspb.NewPaymentsServiceClient(conn))
 	repo := ordersrepository.NewInMemoryRepository()
 	idGen := id.NewGenerator()
-	service := ordersservice.NewService(repo, paymentClient, idGen)
+	
+	// Kafka event publisher
+	kafkaPublisher := kafka.NewKafkaEventPublisher(cfg.KafkaBrokers)
+	defer kafkaPublisher.Close()
+	
+	service := ordersservice.NewService(repo, paymentClient, idGen, kafkaPublisher)
 
 	grpcServer := grpc.NewServer()
 	orderspb.RegisterOrdersServiceServer(grpcServer, ordersgrpc.NewGRPCServer(service))

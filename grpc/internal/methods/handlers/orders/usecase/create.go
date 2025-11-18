@@ -16,6 +16,10 @@ type IDGenerator interface {
 	NewID() string
 }
 
+type EventPublisher interface {
+	PublishOrderCreated(ctx context.Context, orderID, userID, productID string, amount float64, currency string) error
+}
+
 type CreateOrderCommand struct {
 	UserID    string
 	ProductID string
@@ -23,16 +27,18 @@ type CreateOrderCommand struct {
 }
 
 type Service struct {
-	repo     ordersrepository.OrderRepository
-	payments PaymentAuthorizer
-	idGen    IDGenerator
+	repo          ordersrepository.OrderRepository
+	payments      PaymentAuthorizer
+	idGen         IDGenerator
+	eventPublisher EventPublisher
 }
 
-func NewService(repo ordersrepository.OrderRepository, payments PaymentAuthorizer, idGen IDGenerator) *Service {
+func NewService(repo ordersrepository.OrderRepository, payments PaymentAuthorizer, idGen IDGenerator, eventPublisher EventPublisher) *Service {
 	return &Service{
-		repo:     repo,
-		payments: payments,
-		idGen:    idGen,
+		repo:          repo,
+		payments:      payments,
+		idGen:         idGen,
+		eventPublisher: eventPublisher,
 	}
 }
 
@@ -60,6 +66,12 @@ func (s *Service) CreateOrder(ctx context.Context, cmd CreateOrderCommand) (*ord
 	}
 
 	log.Printf("[orders.service] create done order_id=%s status=%s", orderID, order.Status)
+
+	// Публикуем событие в Kafka
+	if err := s.eventPublisher.PublishOrderCreated(ctx, order.ID, order.UserID, order.ProductID, order.Price.Amount, order.Price.Currency); err != nil {
+		log.Printf("[orders.service] failed to publish event: %v", err)
+		// Не возвращаем ошибку, т.к. заказ уже создан
+	}
 
 	return order, nil
 }

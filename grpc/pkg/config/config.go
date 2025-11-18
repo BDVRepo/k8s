@@ -5,6 +5,7 @@ import "os"
 type OrdersConfig struct {
 	GRPCPort     string
 	PaymentsAddr string
+	KafkaBrokers []string
 }
 
 type PaymentsConfig struct {
@@ -12,9 +13,11 @@ type PaymentsConfig struct {
 }
 
 func LoadOrders() OrdersConfig {
+	brokers := getEnv("KAFKA_BROKERS", "localhost:9092")
 	return OrdersConfig{
 		GRPCPort:     getEnv("ORDERS_GRPC_PORT", ":50051"),
 		PaymentsAddr: getEnv("PAYMENTS_GRPC_ADDR", "localhost:50052"),
+		KafkaBrokers: []string{brokers},
 	}
 }
 
