@@ -89,20 +89,30 @@ func MinSubarrayLen(arr []int, target int) int {
 //	s := "araaci"
 //	k := 2
 //	result := LongestSubstringKDistinct(s, k) // Вернёт 4 ("araa")
+/*Шаг 1: [a] → {a:1}, длина=1, max=1
+Шаг 2: [ar] → {a:1, r:1}, длина=2, max=2
+Шаг 3: [ara] → {a:2, r:1}, длина=3, max=3
+Шаг 4: [araa] → {a:3, r:1}, длина=4, max=4 ✓
+Шаг 5: [araac] → {a:3, r:1, c:1} → 3 символа > k!
+         Сжимаем: [raac] → {r:1, a:2, c:1} → всё ещё 3
+         Сжимаем: [aac] → {a:2, c:1}, длина=3, max=4
+Шаг 6: [aaci] → {a:2, c:1, i:1} → 3 символа > k!
+         Сжимаем: [aci] → {a:1, c:1, i:1} → всё ещё 3
+         Сжимаем: [ci] → {c:1, i:1}, длина=2, max=4*/
 func LongestSubstringKDistinct(s string, k int) int {
 	if len(s) == 0 || k == 0 {
 		return 0
 	}
 
 	// Хеш-таблица для подсчёта символов в текущем окне
-	charCount := make(map[byte]int)
-	maxLength := 0
-	windowStart := 0
+	charCount := make(map[byte]int) // Подсчёт символов в текущем окне
+	maxLength := 0                  // Максимальная найденная длина
+	windowStart := 0                // Начало окна (левый указатель)
 
-	for windowEnd := 0; windowEnd < len(s); windowEnd++ {
+	for windowEnd := 0; windowEnd < len(s); windowEnd++ { //Расширение окна (правый указатель)
 		// Добавляем символ справа в окно
-		rightChar := s[windowEnd]
-		charCount[rightChar]++
+		rightChar := s[windowEnd] // символ справа
+		charCount[rightChar]++    // Добавляем символ в окно
 
 		// Сжимаем окно, пока различных символов больше k
 		for len(charCount) > k {
@@ -111,7 +121,7 @@ func LongestSubstringKDistinct(s string, k int) int {
 			if charCount[leftChar] == 0 {
 				delete(charCount, leftChar) // Удаляем символ из мапы, если его счётчик = 0
 			}
-			windowStart++
+			windowStart++ // Сдвигаем левый указатель
 		}
 
 		// Обновляем максимальную длину
@@ -155,5 +165,3 @@ func FindAverages(arr []int, k int) []float64 {
 
 	return result
 }
-
-
