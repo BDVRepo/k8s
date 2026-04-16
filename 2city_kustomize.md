@@ -193,53 +193,61 @@ echo "##teamcity[setParameter name='system.BUILD_VERSION' value='${BUILD_VERSION
 
 ---
 
-## 5) TeamCity: CD deploy
+## 5) TeamCity: CD deploy (реальный прод-вариант)
 
-Этот шаг берет готовые образы и выкатывает их в кластер.
+Этот шаг берет готовые образы и выкатывает их в прод-кластер.
 
 ```bash
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Ключ для расшифровки секретов через SOPS
+# Проверка ручного запуска:
+# если запуск руками и не выбран ни один HELM_* флаг,
+# запускаются все проекты;
+# если шаг GO и HELM_GO не выбран, этот шаг пропускается.
+if [[ -n "%teamcity.build.triggeredBy.username%" ]] \
+   && [[ -z "%HELM_GO%" ]] && [[ -z "%HELM_BWG%" ]] && [[ -z "%HELM_FAW%" ]] && [[ -z "%HELM_IGETIS%" ]] && [[ -z "%HELM_BAT%" ]]; then
+  echo "Ручной запуск без кастомизации. Запускаются все проекты."
+else
+  if [[ -n "%teamcity.build.triggeredBy.username%" ]] && [[ -z "%HELM_GO%" ]]; then
+    echo "Пропуск шага из-за ручного запуска и HELM_GO  не выбран."
+    exit 0
+  fi
+fi
+
 export SOPS_AGE_KEY_FILE="%system.SOPS_AGE_KEY_FILE%"
+CTX="ci-agent@proffit-prod-cluster-spb-ru-9"
+NS="go-pgo-dashboards-api-golang-release"
 
-# Kubernetes context (в какой кластер) и namespace (в какую среду)
-CTX="ci-agent@proffit-cluster-spb-ru-3"
-NS="go-pgo-dashboards-api-golang-test"
-
-# Берем BUILD_VERSION из зависимого build-шага TeamCity
-BUILD_VERSION=%dep.ProffitBackend_PgoDashboardsApiGolang_Test_Build.system.BUILD_VERSION%
-
-# Записываем версию в файл — Kustomize подставит ее в image tag
+BUILD_VERSION=%dep.ProffitBackend_PgoDashboardsApiGolang_Release_Build.system.BUILD_VERSION%
 echo "BUILD_VERSION=${BUILD_VERSION}" | tee ./ConfigMapValues/build-version
 
-# Расшифровываем секреты из зашифрованных файлов -> в обычный .env
+# Без этой проверки сборка может падать,
+# если директория уже есть на агенте
 [ -d ./SecretValuesDecrypted ] || mkdir ./SecretValuesDecrypted
-/scripts/sops_decrypt.sh --verbose \
-  --directory=./SecretValuesEncrypted \
-  --output-dir=./SecretValuesDecrypted
+/scripts/sops_decrypt.sh --verbose --directory=./SecretValuesEncrypted --output-dir=./SecretValuesDecrypted
 
-# Подготовка доступа к кластеру (kubeconfig)
 source /scripts/fillup_kubeconfig_var.sh
 
-# Удаляем старый migration Job (Job одноразовый — если не удалить,
-# Kubernetes не пересоздаст его и миграции не запустятся повторно)
-kubectl --context $CTX -n $NS \
-  delete job -l app.kubernetes.io/component=migration --ignore-not-found
+# Удаляем старый migration Job, чтобы миграции могли выполниться заново
+kubectl --context $CTX -n $NS delete job -l app.kubernetes.io/component=migration --ignore-not-found
 
-# Сначала применяем только migration-объекты (по label)
-# Это гарантирует, что миграции стартуют первыми
+# Сначала применяем только migration-сущности
 kubectl --context $CTX apply -k ./ -l app.kubernetes.io/component=migration
 
 # Затем применяем всё остальное
-# Job уже создан, конфликтов не будет
 kubectl --context $CTX apply -k ./
 
-# Принудительный рестарт deployment-ов
-# Нужен, если image tag не изменился, но изменились секреты или конфиги
 kubectl --context $CTX -n $NS rollout restart deployment
 ```
+
+Ключевые отличия от тестового варианта:
+
+- другой контекст кластера: `proffit-prod-cluster-spb-ru-9`;
+- другой namespace: `go-pgo-dashboards-api-golang-release`;
+- версия берется из release build chain:
+  `%dep.ProffitBackend_PgoDashboardsApiGolang_Release_Build.system.BUILD_VERSION%`;
+- добавлена логика ручного запуска с `HELM_*` флагами (выбор, какие проекты деплоить).
 
 ---
 
