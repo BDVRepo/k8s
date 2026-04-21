@@ -1,0 +1,8 @@
+#!/bin/bash
+
+SOURCE_DIR="$HOME/projects/k8s/bash"
+ARCHIVE_DIR="$HOME/projects/k8s"
+ARCHIVE_FILE="$ARCHIVE_DIR/backup_$(date +%F).tar.gz"
+
+tar -czf "$ARCHIVE_FILE" -C "$(dirname "$SOURCE_DIR")" "$(basename "$SOURCE_DIR")"
+echo "Backup completed: $ARCHIVE_FILE"

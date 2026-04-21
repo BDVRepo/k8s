@@ -1,0 +1,8 @@
+#!/bin/bash
+URL=$1
+
+if curl -s --head "$URL" | head -n 1 | grep "200" > /dev/null; then
+    echo "Сайт доступен"
+else
+    echo "Сайт недоступен"
+fi

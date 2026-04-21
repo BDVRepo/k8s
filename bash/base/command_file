@@ -1,0 +1,20 @@
+#!/bin/bash
+# -d file directory   Проверяет, существует ли файл, и является ли он директорией.
+# -e file exists      Проверяет, существует ли файл.
+# -f file file        Проверяет, существует ли файл, и является ли он файлом.
+# -r file readable    Проверяет, существует ли файл, и доступен ли он для чтения.
+# -s file size        Проверяет, существует ли файл, и не является ли он пустым.
+# -w file writable    Проверяет, существует ли файл, и доступен ли он для записи.
+# -x file executable  Проверяет, существует ли файл, и является ли он исполняемым.
+# -nt file1 -nt file2 Проверяет, новее ли file1, чем file2.
+# -ot file1 -ot file2 Проверяет, старше ли file1, чем file2.
+# -O file Owner       Проверяет, существует ли файл, и является ли его владельцем текущий пользователь.
+mydir=/home/bdv/projects/k8s/bash
+if [ -d $mydir ]
+then
+echo "The $mydir directory exists"
+cd $mydir
+ls
+else
+echo "The $mydir directory does not exist"
+fi
