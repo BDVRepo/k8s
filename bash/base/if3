@@ -7,3 +7,14 @@ elif ls /home
 then
 echo "The user doesn’t exist but anyway there is a directory under /home"
 fi
+
+# Задача: скрипт принимает число $1. Если > 100 — «большое», если > 10 — «среднее», иначе — «маленькое».
+num=$1
+echo "Анализиум переданное число"
+if [ "$num" -gt 100 ]; then
+ 	echo "Большое"
+elif [ "$num" -gt 10 ]; then
+	echo "Среднее"
+else
+	echo "Маленькое"
+fi

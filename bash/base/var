@@ -1,0 +1,8 @@
+#!/bin/bash
+# display user home
+echo "Home for the current user is: $HOME"
+echo "I have \$1 in my pocket"
+
+# Задача: напиши скрипт, который выводит Привет, <имя>! где имя берётся из $1, а если не передано — выводит Привет, Аноним!
+name="${1:-Аноним}"
+echo "Привет, $name!"

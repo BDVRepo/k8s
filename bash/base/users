@@ -1,0 +1,11 @@
+#!/bin/bash
+# Задача: создай массив из имён пользователей. Для каждого выведи — есть ли такой пользователь в системе (grep "$user" /etc/passwd).
+users=("root" "bdv" "nobody" "ghost")
+
+for user in "${users[@]}"; do
+    if grep -q "^$user:" /etc/passwd; then
+        echo "ЕСТЬ:    $user"
+    else
+        echo "НЕТ:     $user"
+    fi
+done

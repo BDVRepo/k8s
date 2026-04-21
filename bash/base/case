@@ -1,0 +1,9 @@
+#!/bin/bash
+ext=$1
+case $ext in
+    (txt|md)    echo "текст" ;;
+    (csv|xlsx)  echo "таблица" ;;
+    (json|yaml) echo "данные" ;;
+    (xml|html)  echo "разметка" ;;
+    (*)         echo "неизвестный тип" ;;
+esac

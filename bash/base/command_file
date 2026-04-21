@@ -18,3 +18,13 @@ ls
 else
 echo "The $mydir directory does not exist"
 fi
+# Задача: скрипт принимает путь $1. Проверить: если это файл — вывести его размер (du -sh), если директория — вывести количество файлов внутри, если не существует — вывести ошибку.
+file=$1
+
+if [ -f "$file" ]; then
+	du -sh "$file"
+elif [ -d "$file" ]; then
+	find "$file" -maxdepth 1 -type f | wc -l
+else
+	echo "ERROR">&2
+fi

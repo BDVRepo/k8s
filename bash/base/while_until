@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# Задача: напиши скрипт, который получает список имён через $@ и для каждого выводит Привет, <имя>!
+attempts=0
+until [ -f /tmp/ready ] ; do
+	((attempts++))
+	if [[ $attempts -eq 10 ]]; then
+	echo "Timeout"
+	exit 1
+	else 
+	sleep 2
+	fi
+done
+echo "Файл найден"

@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# Задача: есть файл config.txt с содержимым host=localhost. Замени localhost на 192.168.1.1 и выведи результат (без изменения файла).
+script_dir="$(cd "$(dirname "$0")" && pwd)"
+echo "Содержимое файла config.txt в директории ${script_dir}"
+sed 's/localhost/192.168.1.1/' "$script_dir/config.txt"
