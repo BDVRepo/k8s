@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# Задача: запусти sleep 500 в фоне. Найди его PID через jobs -l и через ps. Отправь SIGTERM. Проверь код выхода $?.
+sleep 500 &
+pid=$!
+echo "PID from \$!: $pid"
+jobs -l
+ps -p "$pid" -o pid,cmd
+kill -TERM "$pid"
+echo "kill exit code: $?" 

@@ -500,6 +500,121 @@ journalctl -u myservice --since "5 min ago"
 strace -f -e trace=file /usr/bin/myservice   # что за файлы ищет
 ```
 
+---
+
+### Сервис запущен, но не отвечает — пошаговая отладка
+
+Применимо к любому сервису (nginx, API, Postgres, Redis и т.д.).
+
+**Шаг 1 — убедиться что сервис вообще живой**
+```bash
+systemctl status <service> --no-pager -l
+```
+Смотришь:
+- `Active: active (running)` — живой, идём дальше.
+- `Active: failed` — сервис упал, смотри шаг 2.
+- `Active: inactive (dead)` — сервис не запущен, `systemctl start <service>`.
+
+---
+
+**Шаг 2 — читать логи сервиса**
+```bash
+journalctl -u <service> -n 100 --no-pager
+journalctl -u <service> --since "10 min ago"
+```
+Что искать:
+- строки с `error`, `failed`, `permission denied`, `address already in use`.
+- Стек ошибки или конкретную причину отказа.
+
+Если это приложение (не systemd-сервис) — смотри в его лог-файл:
+```bash
+tail -f /var/log/<appname>/<appname>.log
+grep -i "error\|fatal" /var/log/<appname>/<appname>.log | tail -30
+```
+
+---
+
+**Шаг 3 — проверить конфиг (если есть команда проверки)**
+```bash
+# nginx:
+sudo nginx -t
+# --no-pager: вывод сразу в терминал без less
+# -l: не обрезать длинные строки
+```
+Аналоги для других сервисов:
+```bash
+apache2 -t              # Apache
+sshd -t                 # SSH
+haproxy -c -f /etc/haproxy/haproxy.cfg
+```
+
+---
+
+**Шаг 4 — проверить слушает ли порт**
+```bash
+ss -tlnp | grep :<port>
+```
+Примеры:
+```bash
+ss -tlnp | grep :80     # HTTP
+ss -tlnp | grep :443    # HTTPS
+ss -tlnp | grep :5432   # Postgres
+ss -tlnp | grep :6379   # Redis
+```
+Что означает вывод:
+- `LISTEN 0 ... 0.0.0.0:80` — слушает на всех IPv4-интерфейсах. Хорошо.
+- `LISTEN 0 ... [::]:80` — слушает IPv6. Тоже нормально.
+- Строки нет совсем — сервис НЕ слушает этот порт: либо не запустился, либо конфиг слушает другой порт.
+
+---
+
+**Шаг 5 — проверить ответ локально**
+```bash
+curl -I http://127.0.0.1           # HTTP
+curl -kI https://127.0.0.1         # HTTPS (без проверки сертификата)
+curl -I http://127.0.0.1:8080      # нестандартный порт
+```
+- `200 OK` — сервис отвечает, проблема в чём-то другом (DNS, firewall, upstream).
+- `Connection refused` — никто не слушает порт.
+- `502/503` — сервис слушает, но backend/upstream не отвечает.
+- Timeout — порт может быть заблокирован firewall.
+
+---
+
+**Шаг 6 — проверить ресурсы**
+```bash
+free -h                         # не кончилась ли память
+df -h                           # не кончился ли диск
+ps aux --sort=-%cpu | head -5   # не перегружен ли CPU
+lsof -p <PID> | wc -l          # сколько открытых файлов (limit?)
+```
+Частые причины:
+- OOM (Out of Memory) — процесс убивает ядро. Проверь: `dmesg -T | grep -i "killed process"`.
+- Диск кончился → `df -h`.
+- Лимит на открытые файлы → `ulimit -n`, `cat /proc/<PID>/limits | grep "open files"`.
+
+---
+
+**Шаг 7 — если непонятно что делает процесс**
+```bash
+strace -p <PID> -f -e trace=network,file 2>&1 | head -30
+```
+Покажет в реальном времени какие системные вызовы делает процесс: куда подключается, какие файлы открывает.
+
+---
+
+**Итоговый чеклист «сервис не отвечает»:**
+
+| Шаг | Команда | Что ищем |
+|-----|---------|----------|
+| 1 | `systemctl status <svc> --no-pager -l` | `active/failed/inactive` |
+| 2 | `journalctl -u <svc> -n 100 --no-pager` | ошибки, причина |
+| 3 | `<app> -t` (если есть) | ошибки конфига |
+| 4 | `ss -tlnp \| grep :<port>` | слушает ли порт |
+| 5 | `curl -I http://127.0.0.1:<port>` | HTTP-ответ |
+| 6 | `free -h`, `df -h`, `dmesg \| grep killed` | ресурсы/OOM |
+| 7 | `strace -p <PID>` | syscalls если совсем непонятно |
+
 ### Высокий CPU
 
 ```bash
